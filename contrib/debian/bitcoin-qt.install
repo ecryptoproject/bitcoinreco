@@ -1,0 +1,6 @@
+usr/local/bin/bitcoinreco-qt usr/bin
+share/pixmaps/bitcoinreco32.xpm usr/share/pixmaps
+share/pixmaps/bitcoinreco16.xpm usr/share/pixmaps
+share/pixmaps/bitcoinreco128.png usr/share/pixmaps
+debian/bitcoinreco-qt.desktop usr/share/applications
+debian/bitcoinreco-qt.protocol usr/share/kde4/services/

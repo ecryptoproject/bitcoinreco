@@ -1,0 +1,81 @@
+policy_module(bitcoinreco, 1.100.1)
+
+########################################
+#
+# Declarations
+#
+
+type bitcoinreco_t;
+type bitcoinreco_exec_t;
+init_daemon_domain(bitcoinreco_t, bitcoinreco_exec_t)
+
+permissive bitcoinreco_t;
+
+type bitcoinreco_initrc_exec_t;
+init_script_file(bitcoinreco_initrc_exec_t)
+
+type bitcoinreco_conf_t;
+files_type(bitcoinreco_conf_t)
+
+type bitcoinreco_var_lib_t;
+files_type(bitcoinreco_var_lib_t)
+
+type bitcoinreco_var_run_t;
+files_type(bitcoinreco_var_run_t)
+
+type bitcoinreco_port_t;
+corenet_port(bitcoinreco_port_t)
+
+########################################
+#
+# bitcoinreco local policy
+#
+allow bitcoinreco_t self:process { fork };
+
+allow bitcoinreco_t self:fifo_file rw_fifo_file_perms;
+allow bitcoinreco_t self:unix_stream_socket create_stream_socket_perms;
+
+manage_dirs_pattern(bitcoinreco_t, bitcoinreco_conf_t, bitcoinreco_conf_t)
+manage_files_pattern(bitcoinreco_t, bitcoinreco_conf_t, bitcoinreco_conf_t)
+
+manage_dirs_pattern(bitcoinreco_t, bitcoinreco_var_lib_t, bitcoinreco_var_lib_t)
+manage_files_pattern(bitcoinreco_t, bitcoinreco_var_lib_t, bitcoinreco_var_lib_t)
+files_var_lib_filetrans(bitcoinreco_t, bitcoinreco_var_lib_t, { dir file })
+
+manage_dirs_pattern(bitcoinreco_t, bitcoinreco_var_run_t, bitcoinreco_var_run_t)
+manage_files_pattern(bitcoinreco_t, bitcoinreco_var_run_t, bitcoinreco_var_run_t)
+
+sysnet_dns_name_resolve(bitcoinreco_t)
+corenet_all_recvfrom_unlabeled(bitcoinreco_t)
+
+allow bitcoinreco_t self:tcp_socket create_stream_socket_perms;
+corenet_tcp_sendrecv_generic_if(bitcoinreco_t)
+corenet_tcp_sendrecv_generic_node(bitcoinreco_t)
+corenet_tcp_sendrecv_all_ports(bitcoinreco_t)
+corenet_tcp_bind_generic_node(bitcoinreco_t)
+
+gen_require(`
+    type bitcoinreco_port_t;
+')
+allow bitcoinreco_t bitcoinreco_port_t:tcp_socket name_bind;
+
+gen_require(`
+    type bitcoinreco_port_t;
+')
+allow bitcoinreco_t bitcoinreco_port_t:tcp_socket name_connect;
+
+domain_use_interactive_fds(bitcoinreco_t)
+
+files_read_etc_files(bitcoinreco_t)
+
+miscfiles_read_localization(bitcoinreco_t)
+
+sysnet_dns_name_resolve(bitcoinreco_t)
+
+allow bitcoinreco_t bitcoinreco_exec_t:file execute_no_trans;
+allow bitcoinreco_t self:process setsched;
+corecmd_exec_ls(bitcoinreco_t)
+corenet_tcp_connect_http_port(bitcoinreco_t)
+dev_read_urand(bitcoinreco_t)
+fs_getattr_xattr_fs(bitcoinreco_t)
+kernel_read_system_state(bitcoinreco_t)

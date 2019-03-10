@@ -1,0 +1,33 @@
+# /etc/conf.d/bitcoinrecod: config file for /etc/init.d/bitcoinrecod
+
+# Config file location
+#BITCOINRECOD_CONFIGFILE="/etc/bitcoinreco/bitcoinreco.conf"
+
+# What directory to write pidfile to?  (created and owned by $BITCOINRECOD_USER)
+#BITCOINRECOD_PIDDIR="/var/run/bitcoinrecod"
+
+# What filename to give the pidfile
+#BITCOINRECOD_PIDFILE="${BITCOINRECOD_PIDDIR}/bitcoinrecod.pid"
+
+# Where to write bitcoinrecod data (be mindful that the blockchain is large)
+#BITCOINRECOD_DATADIR="/var/lib/bitcoinrecod"
+
+# User and group to own bitcoinrecod process
+#BITCOINRECOD_USER="bitcoinreco"
+#BITCOINRECOD_GROUP="bitcoinreco"
+
+# Path to bitcoinrecod executable
+#BITCOINRECOD_BIN="/usr/bin/bitcoinrecod"
+
+# Nice value to run bitcoinrecod under
+#BITCOINRECOD_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+#BITCOINRECOD_OPTS=""
+
+# The timeout in seconds OpenRC will wait for bitcoinrecod to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+BITCOINRECOD_SIGTERM_TIMEOUT=60

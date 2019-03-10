@@ -1,0 +1,92 @@
+#!/sbin/openrc-run
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/bitcoinreco/.bitcoinreco" ]; then
+	BITCOINRECOD_DEFAULT_DATADIR="/var/lib/bitcoinreco/.bitcoinreco"
+else
+	BITCOINRECOD_DEFAULT_DATADIR="/var/lib/bitcoinrecod"
+fi
+
+BITCOINRECOD_CONFIGFILE=${BITCOINRECOD_CONFIGFILE:-/etc/bitcoinreco/bitcoinreco.conf}
+BITCOINRECOD_PIDDIR=${BITCOINRECOD_PIDDIR:-/var/run/bitcoinrecod}
+BITCOINRECOD_PIDFILE=${BITCOINRECOD_PIDFILE:-${BITCOINRECOD_PIDDIR}/bitcoinrecod.pid}
+BITCOINRECOD_DATADIR=${BITCOINRECOD_DATADIR:-${BITCOINRECOD_DEFAULT_DATADIR}}
+BITCOINRECOD_USER=${BITCOINRECOD_USER:-${BITCOINRECO_USER:-bitcoinreco}}
+BITCOINRECOD_GROUP=${BITCOINRECOD_GROUP:-bitcoinreco}
+BITCOINRECOD_BIN=${BITCOINRECOD_BIN:-/usr/bin/bitcoinrecod}
+BITCOINRECOD_NICE=${BITCOINRECOD_NICE:-${NICELEVEL:-0}}
+BITCOINRECOD_OPTS="${BITCOINRECOD_OPTS:-${BITCOINRECO_OPTS}}"
+
+name="Bitcoinreco Core Daemon"
+description="Bitcoinreco cryptocurrency P2P network daemon"
+
+command="/usr/bin/bitcoinrecod"
+command_args="-pid=\"${BITCOINRECOD_PIDFILE}\" \
+		-conf=\"${BITCOINRECOD_CONFIGFILE}\" \
+		-datadir=\"${BITCOINRECOD_DATADIR}\" \
+		-daemon \
+		${BITCOINRECOD_OPTS}"
+
+required_files="${BITCOINRECOD_CONFIGFILE}"
+start_stop_daemon_args="-u ${BITCOINRECOD_USER} \
+			-N ${BITCOINRECOD_NICE} -w 2000"
+pidfile="${BITCOINRECOD_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${BITCOINRECOD_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${BITCOINRECOD_USER}:${BITCOINRECOD_GROUP}" \
+	"${BITCOINRECOD_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${BITCOINRECOD_USER}:${BITCOINRECOD_GROUP}" \
+	"${BITCOINRECOD_PIDDIR}"
+
+	checkpath -f \
+	-o ${BITCOINRECOD_USER}:${BITCOINRECOD_GROUP} \
+	-m 0660 \
+	${BITCOINRECOD_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${BITCOINRECOD_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run bitcoinrecod."
+		eerror "The setting must appear in ${BITCOINRECOD_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following "
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"Bitcoinreco Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

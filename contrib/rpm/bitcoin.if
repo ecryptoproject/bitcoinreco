@@ -1,0 +1,157 @@
+
+## <summary>policy for bitcoinreco</summary>
+
+
+########################################
+## <summary>
+##	Transition to bitcoinreco.
+## </summary>
+## <param name="domain">
+## <summary>
+##	Domain allowed to transition.
+## </summary>
+## </param>
+#
+interface(`bitcoinreco_domtrans',`
+	gen_require(`
+		type bitcoinreco_t, bitcoinreco_exec_t;
+	')
+
+	corecmd_search_bin($1)
+	domtrans_pattern($1, bitcoinreco_exec_t, bitcoinreco_t)
+')
+
+
+########################################
+## <summary>
+##	Execute bitcoinreco server in the bitcoinreco domain.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`bitcoinreco_initrc_domtrans',`
+	gen_require(`
+		type bitcoinreco_initrc_exec_t;
+	')
+
+	init_labeled_script_domtrans($1, bitcoinreco_initrc_exec_t)
+')
+
+
+########################################
+## <summary>
+##	Search bitcoinreco lib directories.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`bitcoinreco_search_lib',`
+	gen_require(`
+		type bitcoinreco_var_lib_t;
+	')
+
+	allow $1 bitcoinreco_var_lib_t:dir search_dir_perms;
+	files_search_var_lib($1)
+')
+
+########################################
+## <summary>
+##	Read bitcoinreco lib files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`bitcoinreco_read_lib_files',`
+	gen_require(`
+		type bitcoinreco_var_lib_t;
+	')
+
+	files_search_var_lib($1)
+	read_files_pattern($1, bitcoinreco_var_lib_t, bitcoinreco_var_lib_t)
+')
+
+########################################
+## <summary>
+##	Manage bitcoinreco lib files.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`bitcoinreco_manage_lib_files',`
+	gen_require(`
+		type bitcoinreco_var_lib_t;
+	')
+
+	files_search_var_lib($1)
+	manage_files_pattern($1, bitcoinreco_var_lib_t, bitcoinreco_var_lib_t)
+')
+
+########################################
+## <summary>
+##	Manage bitcoinreco lib directories.
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+#
+interface(`bitcoinreco_manage_lib_dirs',`
+	gen_require(`
+		type bitcoinreco_var_lib_t;
+	')
+
+	files_search_var_lib($1)
+	manage_dirs_pattern($1, bitcoinreco_var_lib_t, bitcoinreco_var_lib_t)
+')
+
+
+########################################
+## <summary>
+##	All of the rules required to administrate
+##	a bitcoinreco environment
+## </summary>
+## <param name="domain">
+##	<summary>
+##	Domain allowed access.
+##	</summary>
+## </param>
+## <param name="role">
+##	<summary>
+##	Role allowed access.
+##	</summary>
+## </param>
+## <rolecap/>
+#
+interface(`bitcoinreco_admin',`
+	gen_require(`
+		type bitcoinreco_t;
+		type bitcoinreco_initrc_exec_t;
+		type bitcoinreco_var_lib_t;
+	')
+
+	allow $1 bitcoinreco_t:process { ptrace signal_perms };
+	ps_process_pattern($1, bitcoinreco_t)
+
+	bitcoinreco_initrc_domtrans($1)
+	domain_system_change_exemption($1)
+	role_transition $2 bitcoinreco_initrc_exec_t system_r;
+	allow $2 system_r;
+
+	files_search_var_lib($1)
+	admin_pattern($1, bitcoinreco_var_lib_t)
+
+')
+

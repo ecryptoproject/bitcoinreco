@@ -1,0 +1,8 @@
+/usr/bin/bitcoinreco-cli		--	gen_context(system_u:object_r:bitcoinreco_exec_t,s0)
+/usr/sbin/bitcoinrecod		--	gen_context(system_u:object_r:bitcoinreco_exec_t,s0)
+/usr/lib(64)?/bitcoinreco/bitcoinrecod		--	gen_context(system_u:object_r:bitcoinreco_exec_t,s0)
+
+/etc/bitcoinreco(/.*)?		gen_context(system_u:object_r:bitcoinreco_conf_t,s0)
+/var/lib/bitcoinreco(/.*)?		gen_context(system_u:object_r:bitcoinreco_var_lib_t,s0)
+
+(/var)?/run/bitcoinrecod(/.*)?   gen_context(system_u:object_r:bitcoinreco_var_run_t,s0)

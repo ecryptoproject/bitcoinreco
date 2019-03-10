@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Name=Bitcoinreco Core
+Comment=Connect to the Bitcoinreco P2P Network
+Comment[de]=Verbinde mit dem Bitcoinreco peer-to-peer Netzwerk
+Comment[fr]=Bitcoinreco, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=Bitcoinreco, eşten eşe kriptografik sanal para birimi
+Exec=bitcoinreco-qt %u
+Terminal=false
+Type=Application
+Icon=bitcoinreco128
+MimeType=x-scheme-handler/bitcoinreco;
+Categories=Office;Finance;P2P;Network;Qt;
+StartupWMClass=Bitcoinreco-qt
